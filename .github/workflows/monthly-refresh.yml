@@ -53,25 +53,25 @@ jobs:
       - name: Validate Generated Data
         id: validate
         run: |
-          python tech-radar/scripts/validate.py
+          python scripts/validate.py
         continue-on-error: true
 
       - name: Render Dashboard
         id: render
         run: |
-          python tech-radar/scripts/render.py
+          python scripts/render.py
         continue-on-error: true
 
       - name: Check for Changes
         id: changes
         run: |
-          if git diff --quiet tech-radar/data/radar.json; then
+          if git diff --quiet data/radar.json; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "No changes detected in radar.json"
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
             echo "Changes detected in radar.json"
-            git diff tech-radar/data/radar.json | head -50
+            git diff data/radar.json | head -50
           fi
 
       - name: Create Pull Request
@@ -100,7 +100,7 @@ jobs:
             - Java Ecosystem (JDK, Spring Boot, Quarkus, GraalVM)
 
             ### Changes
-            - Updated `tech-radar/data/radar.json` with latest research
+            - Updated `data/radar.json` with latest research
             - Rendered new dashboard snapshot in `docs/`
             - Generated archive snapshot with timestamp
 
@@ -166,7 +166,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./tech-radar/docs
+          publish_dir: ./docs
           cname: tech-radar.example.com  # TODO: Update with actual domain (remove this line if not using custom domain)
 
       - name: Report Deployment
