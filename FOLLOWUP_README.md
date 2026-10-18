@@ -131,7 +131,7 @@ This allows GitHub Actions to call the Anthropic API for monthly research.
    - **Value:** Paste your Anthropic API key (from https://console.anthropic.com/account/keys)
    
    ```
-   Example: sk-ant-v0-abc123def456...
+   Example format: sk-ant-<your-key>
    ```
 
 6. Click **"Add secret"** button
