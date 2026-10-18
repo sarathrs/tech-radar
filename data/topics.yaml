@@ -1,0 +1,130 @@
+topics:
+  - name: Claude
+    category: AI Tools
+    sources:
+      - title: Anthropic Claude Official
+        url: https://www.anthropic.com/claude
+      - title: Anthropic GitHub Releases
+        url: https://github.com/anthropic-ai/anthropic-sdk-python/releases
+      - title: Claude API Changelog
+        url: https://docs.anthropic.com/changelog
+
+  - name: ChatGPT
+    category: AI Tools
+    sources:
+      - title: OpenAI Platform
+        url: https://platform.openai.com/
+      - title: OpenAI Changelog
+        url: https://openai.com/updates/
+      - title: OpenAI API Documentation
+        url: https://platform.openai.com/docs/api-reference
+
+  - name: Google Gemini
+    category: AI Tools
+    sources:
+      - title: Google AI Studio
+        url: https://ai.google.dev/
+      - title: Google Gemini API Docs
+        url: https://ai.google.dev/docs
+      - title: Google Cloud AI Updates
+        url: https://cloud.google.com/blog/products/ai-machine-learning
+
+  - name: Elasticsearch
+    category: Search Engines
+    sources:
+      - title: Elastic Official Releases
+        url: https://www.elastic.co/downloads/elasticsearch
+      - title: Elastic Release Notes
+        url: https://www.elastic.co/guide/en/elasticsearch/reference/current/release-notes.html
+      - title: Elastic GitHub
+        url: https://github.com/elastic/elasticsearch/releases
+
+  - name: Kubernetes
+    category: Containers
+    sources:
+      - title: Kubernetes Official
+        url: https://kubernetes.io/
+      - title: Kubernetes Releases
+        url: https://kubernetes.io/releases/
+      - title: Kubernetes GitHub
+        url: https://github.com/kubernetes/kubernetes/releases
+
+  - name: Docker
+    category: Containers
+    sources:
+      - title: Docker Official
+        url: https://www.docker.com/
+      - title: Docker Release Notes
+        url: https://docs.docker.com/release-notes/
+      - title: Docker GitHub
+        url: https://github.com/moby/moby/releases
+
+  - name: AWS
+    category: Cloud
+    sources:
+      - title: AWS What's New
+        url: https://aws.amazon.com/new/
+      - title: AWS Announcements
+        url: https://aws.amazon.com/blogs/aws/
+      - title: AWS Release Notes
+        url: https://docs.aws.amazon.com/general/latest/gr/aws-general.pdf
+
+  - name: Microsoft Azure
+    category: Cloud
+    sources:
+      - title: Azure Updates
+        url: https://azure.microsoft.com/en-us/updates/
+      - title: Azure Blog
+        url: https://azure.microsoft.com/en-us/blog/
+      - title: Azure Release Notes
+        url: https://learn.microsoft.com/en-us/azure/azure-monitor/app/release-notes
+
+  - name: GCP (Google Cloud Platform)
+    category: Cloud
+    sources:
+      - title: Google Cloud What's New
+        url: https://cloud.google.com/blog
+      - title: Google Cloud Release Notes
+        url: https://cloud.google.com/release-notes
+      - title: Google Cloud Products
+        url: https://cloud.google.com/products/release-notes
+
+  - name: JDK (Java Development Kit)
+    category: Java Ecosystem
+    sources:
+      - title: OpenJDK Latest Release
+        url: https://jdk.java.net/
+      - title: Oracle JDK Release Notes
+        url: https://www.oracle.com/java/technologies/javase/jdk-relnotes-index.html
+      - title: Java Release Calendar
+        url: https://www.oracle.com/java/technologies/java-se-support-roadmap.html
+
+  - name: Spring Boot
+    category: Java Ecosystem
+    sources:
+      - title: Spring Boot Official
+        url: https://spring.io/projects/spring-boot
+      - title: Spring Boot Releases
+        url: https://github.com/spring-projects/spring-boot/releases
+      - title: Spring Blog
+        url: https://spring.io/blog
+
+  - name: Quarkus
+    category: Java Ecosystem
+    sources:
+      - title: Quarkus Official
+        url: https://quarkus.io/
+      - title: Quarkus Releases
+        url: https://github.com/quarkusio/quarkus/releases
+      - title: Quarkus Blog
+        url: https://quarkus.io/blog
+
+  - name: GraalVM
+    category: Java Ecosystem
+    sources:
+      - title: GraalVM Official
+        url: https://www.graalvm.org/
+      - title: GraalVM Releases
+        url: https://github.com/oracle/graal/releases
+      - title: GraalVM Documentation
+        url: https://www.graalvm.org/latest/docs/

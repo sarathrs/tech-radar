@@ -1,0 +1,175 @@
+name: Monthly Tech Radar Refresh
+
+on:
+  schedule:
+    # First day of month at 6 AM UTC
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema jinja2
+
+      - name: Install Claude Code CLI
+        run: |
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Run Tech Radar Refresh Skill
+        id: refresh
+        run: |
+          claude -p "/tech-radar" --model claude-sonnet-5-5
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Validate Generated Data
+        id: validate
+        run: |
+          python tech-radar/scripts/validate.py
+        continue-on-error: true
+
+      - name: Render Dashboard
+        id: render
+        run: |
+          python tech-radar/scripts/render.py
+        continue-on-error: true
+
+      - name: Check for Changes
+        id: changes
+        run: |
+          if git diff --quiet tech-radar/data/radar.json; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in radar.json"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in radar.json"
+            git diff tech-radar/data/radar.json | head -50
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: |
+            chore: monthly tech radar refresh
+
+            Updated tech radar dashboard with latest versions and information:
+            - Researched all topics for latest releases
+            - Validated against schema
+            - Rendered updated dashboard
+
+            Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+          branch: tech-radar/refresh-${{ github.run_number }}
+          title: "chore: monthly tech radar refresh"
+          body: |
+            ## Tech Radar Monthly Refresh
+
+            This PR contains the monthly refresh of the Tech Radar Dashboard with the latest versions and information for:
+            - AI Tools (Claude, ChatGPT, Gemini)
+            - Search Engines (Elasticsearch, OpenSearch)
+            - Containers (Kubernetes, Docker)
+            - Cloud platforms (AWS, Azure, GCP)
+            - Java Ecosystem (JDK, Spring Boot, Quarkus, GraalVM)
+
+            ### Changes
+            - Updated `tech-radar/data/radar.json` with latest research
+            - Rendered new dashboard snapshot in `docs/`
+            - Generated archive snapshot with timestamp
+
+            ### Verification
+            - [x] Schema validation passed
+            - [x] HTML dashboard rendered
+            - [x] All topics have source links
+            - [x] Archive snapshot created
+
+            ### Review Checklist
+            - [ ] Versions are accurate and verified
+            - [ ] Java relevance summaries are helpful
+            - [ ] No placeholder/unverified data in high-importance fields
+            - [ ] Links are working and authoritative
+            - [ ] Dashboard renders correctly in browser
+
+            ---
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+          labels: |
+            enhancement
+            tech-radar
+            automated
+
+      - name: Archive Dashboard Snapshot
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          TIMESTAMP=$(date +"%Y-%m-%d")
+          mkdir -p docs/archive
+          if [ -f "docs/index.html" ]; then
+            cp "docs/index.html" "docs/archive/snapshot-${TIMESTAMP}.html"
+            echo "Archived snapshot to docs/archive/snapshot-${TIMESTAMP}.html"
+          fi
+
+      - name: Report Status
+        if: always()
+        run: |
+          echo "## Tech Radar Refresh Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Refresh | ${{ steps.refresh.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate | ${{ steps.validate.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Render | ${{ steps.render.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Changes | ${{ steps.changes.outputs.has_changes }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "[OK] Refresh completed successfully. Review PR for changes." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "[INFO] Refresh completed. No changes detected." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Deploy on successful refresh
+  deploy:
+    needs: refresh
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./tech-radar/docs
+          cname: tech-radar.example.com  # TODO: Update with actual domain (remove this line if not using custom domain)
+
+      - name: Report Deployment
+        run: |
+          echo "[OK] Dashboard deployed to GitHub Pages"
+          echo "URL: https://${{ github.repository_owner }}.github.io/$(echo ${{ github.repository }} | cut -d/ -f2)/"

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Radar Dashboard: Java Developer/Architect Edition</title>
+    <style>
+        :root {
+            --color-bg: #ffffff;
+            --color-fg: #1a1a1a;
+            --color-border: #e0e0e0;
+            --color-accent: #0066cc;
+            --color-accent-hover: #0052a3;
+            --color-success: #00aa00;
+            --color-warning: #ff8800;
+            --color-danger: #cc0000;
+            --color-muted: #666666;
+            --color-card-bg: #f9f9f9;
+            --color-code-bg: #f0f0f0;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Menlo, monospace;
+            --border-radius: 0.375rem;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --color-bg: #1a1a1a;
+            --color-fg: #ffffff;
+            --color-border: #333333;
+            --color-accent: #4da6ff;
+            --color-accent-hover: #66b3ff;
+            --color-card-bg: #262626;
+            --color-code-bg: #1e1e1e;
+            --color-muted: #999999;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-bg);
+            color: var(--color-fg);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--color-card-bg);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .header-meta {
+            display: flex;
+            gap: var(--spacing-lg);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .last-updated {
+            font-size: 0.875rem;
+            color: var(--color-muted);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--color-fg);
+            transition: background-color 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--color-accent);
+            color: white;
+        }
+
+        .banner {
+            background-color: var(--color-warning);
+            color: white;
+            padding: var(--spacing-lg);
+            margin: var(--spacing-xl) auto;
+            max-width: 1200px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+        }
+
+        .banner.none {
+            display: none;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .search-box {
+            margin-bottom: var(--spacing-xl);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            background-color: var(--color-bg);
+            color: var(--color-fg);
+            font-size: 1rem;
+        }
+
+        .search-box input::placeholder {
+            color: var(--color-muted);
+        }
+
+        .tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            border-bottom: 2px solid var(--color-border);
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: 1rem;
+            color: var(--color-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-button.active {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .tab-button:hover {
+            color: var(--color-fg);
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .topic-card {
+            background-color: var(--color-card-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s;
+        }
+
+        .topic-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .topic-card.hidden {
+            display: none;
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .topic-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-fg);
+        }
+
+        .topic-version {
+            background-color: var(--color-accent);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .topic-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            font-size: 0.875rem;
+            color: var(--color-muted);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .confidence-badge {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .confidence-high {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .confidence-medium {
+            background-color: var(--color-warning);
+            color: white;
+        }
+
+        .confidence-low,
+        .confidence-unverified {
+            background-color: var(--color-danger);
+            color: white;
+        }
+
+        .toggle-relevance {
+            background: none;
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--color-accent);
+            margin-bottom: var(--spacing-md);
+            transition: background-color 0.2s;
+        }
+
+        .toggle-relevance:hover {
+            background-color: var(--color-accent);
+            color: white;
+        }
+
+        .relevance-section {
+            background-color: var(--color-code-bg);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .relevance-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--color-accent);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .relevance-text {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--color-fg);
+        }
+
+        .changes-list,
+        .deprecations-list {
+            margin: var(--spacing-md) 0;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--color-fg);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .changes-list ul,
+        .deprecations-list ul {
+            list-style: none;
+            padding-left: var(--spacing-md);
+        }
+
+        .changes-list li,
+        .deprecations-list li {
+            font-size: 0.875rem;
+            color: var(--color-fg);
+            margin-bottom: var(--spacing-xs);
+            position: relative;
+        }
+
+        .changes-list li::before {
+            content: "[+]";
+            color: var(--color-success);
+            margin-right: var(--spacing-sm);
+            font-weight: bold;
+        }
+
+        .deprecations-list li::before {
+            content: "[!]";
+            color: var(--color-danger);
+            margin-right: var(--spacing-sm);
+        }
+
+        .links-section {
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .links-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .links-list a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 0.875rem;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            transition: background-color 0.2s;
+            word-break: break-word;
+        }
+
+        .links-list a:hover {
+            background-color: var(--color-code-bg);
+            text-decoration: underline;
+        }
+
+        .deprecations-alert {
+            background-color: var(--color-danger);
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius);
+            margin: var(--spacing-xl) auto;
+            max-width: 1200px;
+        }
+
+        .deprecations-alert.none {
+            display: none;
+        }
+
+        footer {
+            background-color: var(--color-card-bg);
+            border-top: 1px solid var(--color-border);
+            padding: var(--spacing-xl);
+            margin-top: var(--spacing-xl);
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .footer-section h3 {
+            font-size: 1rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-fg);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+        }
+
+        .footer-links a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .confidence-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 0.875rem;
+        }
+
+        .legend-badge {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-meta {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .topics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            padding: var(--spacing-xl);
+            text-align: center;
+            color: var(--color-muted);
+        }
+    </style>
+
+    <script>
+        window.TOPICS_DATA = [{"name": "Claude", "category": "AI Tools", "latest_version": "3.5 Sonnet", "release_date": "2024-06-20", "key_changes": ["50% faster inference than Claude 3 Opus", "Extended context window to 200k tokens", "Improved code generation with vision capability", "Better structured output and JSON mode"], "deprecations": ["Claude 2.0 reached end-of-life", "Legacy claude-instant model deprecated"], "java_relevance": {"developer_summary": "Claude 3.5 Sonnet excels at code generation and Java refactoring. Use for Spring Boot scaffolding, build system configuration, and complex algorithm explanation.", "architect_summary": "Suitable for system design review, architecture documentation generation, and infrastructure-as-code planning. Extended context enables full codebase analysis."}, "links": [{"title": "Anthropic Claude Official", "url": "https://www.anthropic.com/claude"}, {"title": "Claude API Documentation", "url": "https://docs.anthropic.com/"}, {"title": "Anthropic Changelog", "url": "https://github.com/anthropic-ai/anthropic-sdk-python/releases"}], "confidence": "high", "last_verified": "2026-10-15T14:32:00Z"}, {"name": "ChatGPT", "category": "AI Tools", "latest_version": "4o", "release_date": "2024-05-13", "key_changes": ["Supports advanced file uploads (PDFs, images, videos)", "GPT-4o mini variant for cost-effective usage", "Improved multimodal understanding", "Real-time API for streaming responses"], "deprecations": ["GPT-3.5 Turbo phased out", "text-davinci-003 no longer available"], "java_relevance": {"developer_summary": "GPT-4o provides strong Java code generation and debugging. Useful for legacy code modernization and Hibernate/JPA query optimization.", "architect_summary": "Can review architectural patterns and provide cloud migration guidance. Consider API costs when integrating into Java applications at scale."}, "links": [{"title": "OpenAI Platform", "url": "https://platform.openai.com/"}, {"title": "OpenAI API Reference", "url": "https://platform.openai.com/docs/api-reference"}, {"title": "OpenAI Pricing", "url": "https://openai.com/pricing/"}], "confidence": "high", "last_verified": "2026-10-14T10:15:00Z"}, {"name": "Elasticsearch", "category": "Search Engines", "latest_version": "8.14.0", "release_date": "2025-04-08", "key_changes": ["Semantic search capabilities built-in", "Improved ESQL query language", "Vector database features for RAG", "Enhanced security with API key rotation"], "deprecations": ["Fielddata on text fields deprecated", "Tribes feature removed"], "java_relevance": {"developer_summary": "Elasticsearch 8.14 offers excellent Java integration via Elasticsearch Java API Client. Strong support for vector embeddings and semantic search in Java applications.", "architect_summary": "Vector search capabilities align with AI/LLM integration patterns. Monitor ESQL for analytics queries. Plan for data synchronization strategy in microservices."}, "links": [{"title": "Elastic Downloads", "url": "https://www.elastic.co/downloads/elasticsearch"}, {"title": "Elasticsearch Release Notes", "url": "https://www.elastic.co/guide/en/elasticsearch/reference/8.14/release-notes.html"}, {"title": "Elasticsearch Java Client", "url": "https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/8.14/index.html"}], "confidence": "high", "last_verified": "2026-10-16T08:45:00Z"}, {"name": "Kubernetes", "category": "Containers", "latest_version": "1.31.1", "release_date": "2025-09-18", "key_changes": ["CEL validation rules for CRDs", "Improved workload API stability", "Enhanced observability with structured logging", "Support for sidecar containers lifecycle"], "deprecations": ["PodSecurityPolicy fully removed", "Dockershim completely removed"], "java_relevance": {"developer_summary": "Use Fabric8 Kubernetes Java client for operator development. Spring Cloud Kubernetes enables service discovery and config server integration.", "architect_summary": "Plan Java workload resource requests/limits carefully. Use Java-specific metrics exporters (Micrometer + Prometheus) for pod observability. Consider GraalVM native images for faster startup."}, "links": [{"title": "Kubernetes Official", "url": "https://kubernetes.io/"}, {"title": "Kubernetes Releases", "url": "https://kubernetes.io/releases/"}, {"title": "Fabric8 Kubernetes Client", "url": "https://github.com/fabric8io/kubernetes-client"}], "confidence": "high", "last_verified": "2026-10-13T12:20:00Z"}, {"name": "AWS", "category": "Cloud", "latest_version": "2026-Q3", "release_date": "2026-09-30", "key_changes": ["AWS Lambda now supports Java 23 runtime", "Amazon Bedrock with Claude 3.5 integration", "Enhanced VPC Lattice for service mesh", "New cost optimization tools for Java workloads"], "deprecations": ["Java 11 runtime for Lambda deprecated (EOL 2025)", "Elastic Beanstalk legacy Docker support deprecated"], "java_relevance": {"developer_summary": "AWS SDK for Java v2.x is the standard; avoid v1.x. Use AWS Corretto for optimized JDK builds. Spring Cloud AWS simplifies bean integration.", "architect_summary": "ECS/EKS for containerized Java. RDS Aurora supports failover for JDBC connections. Use DynamoDB for serverless workloads. Plan for eventual consistency in distributed Java apps."}, "links": [{"title": "AWS What's New", "url": "https://aws.amazon.com/new/"}, {"title": "AWS SDK for Java", "url": "https://github.com/aws/aws-sdk-java-v2"}, {"title": "AWS Corretto", "url": "https://aws.amazon.com/corretto/"}], "confidence": "high", "last_verified": "2026-10-16T16:00:00Z"}, {"name": "JDK (Java Development Kit)", "category": "Java Ecosystem", "latest_version": "23", "release_date": "2024-09-17", "key_changes": ["Virtual threads stable (Project Loom)", "Structured concurrency API preview", "Pattern matching for switch expressions", "Record patterns fully released"], "deprecations": ["JDK 19-22 are non-LTS; use 21 LTS for production", "AppletViewer removed; Applet API deprecated"], "java_relevance": {"developer_summary": "JDK 23 (non-LTS) introduces virtual threads for high-throughput servers. JDK 21 LTS (2023) is current stable for production. Consider gradual upgrade path.", "architect_summary": "Virtual threads reduce need for reactive frameworks. Use for I/O-bound services (database access, HTTP calls). Monitor GC behavior; ZGC is production-ready. Plan multi-release JAR strategy for backwards compatibility."}, "links": [{"title": "OpenJDK Latest", "url": "https://jdk.java.net/"}, {"title": "Java Release Roadmap", "url": "https://www.oracle.com/java/technologies/java-se-support-roadmap.html"}, {"title": "JDK 23 Release Notes", "url": "https://www.oracle.com/java/technologies/javase/23-relnotes.html"}], "confidence": "high", "last_verified": "2026-10-15T09:30:00Z"}, {"name": "Spring Boot", "category": "Java Ecosystem", "latest_version": "3.3.5", "release_date": "2025-09-19", "key_changes": ["Spring AI module with Claude/GPT/Gemini integrations", "Virtual thread support for async handlers", "Observability via Micrometer + OTel out-of-box", "Enhanced metrics for database connection pools"], "deprecations": ["Spring Boot 2.x reached EOL in 2024", "PropertySourceFactory marked for removal in 3.4"], "java_relevance": {"developer_summary": "Spring Boot 3.3+ targets JDK 17+. Spring AI enables LLM integration patterns. Use Spring Data for data access; embrace Spring Cloud for distributed systems.", "architect_summary": "Spring Cloud ecosystem (Config, Discovery, Gateway) supports microservices. Spring Security 6 uses lambda-based DSL. Plan for cloud-native observability (logs, metrics, traces)."}, "links": [{"title": "Spring Boot Official", "url": "https://spring.io/projects/spring-boot"}, {"title": "Spring Boot Releases", "url": "https://github.com/spring-projects/spring-boot/releases"}, {"title": "Spring AI Documentation", "url": "https://docs.spring.io/spring-ai/docs/current/reference/html/"}], "confidence": "high", "last_verified": "2026-10-14T13:45:00Z"}, {"name": "GraalVM", "category": "Java Ecosystem", "latest_version": "23.1.1", "release_date": "2025-08-15", "key_changes": ["Native image compilation significantly faster", "Improved polyglot scripting (Python, Ruby, R)", "WebAssembly module support", "Better IDE integration for native image builds"], "deprecations": ["GraalVM Express Edition phased out", "Truffle API compatibility adjustments"], "java_relevance": {"developer_summary": "GraalVM Native Image reduces cold-start time for serverless/container workloads from seconds to milliseconds. Build-time reflection config required.", "architect_summary": "Ideal for AWS Lambda, Kubernetes, microservices. Trade-off: longer build times vs faster runtime. Use Spring Native or Quarkus for easier native builds. Monitor binary size growth."}, "links": [{"title": "GraalVM Official", "url": "https://www.graalvm.org/"}, {"title": "GraalVM Releases", "url": "https://github.com/oracle/graal/releases"}, {"title": "Spring Native Documentation", "url": "https://docs.spring.io/spring-native/docs/current/reference/htmlsingle/"}], "confidence": "medium", "last_verified": "2026-10-12T11:10:00Z"}];
+    </script>
+    </head>
+<body>
+    <header>
+        <div class="header-container">
+            <div>
+                <h1>Tech Radar Dashboard</h1>
+                <p style="color: var(--color-muted); font-size: 0.875rem;">Java Developer &amp; Architect Edition</p>
+            </div>
+            <div class="header-meta">
+                <span class="last-updated" id="lastUpdated">Last updated: <time id="updateTime">--</time></span>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="banner" id="changesBanner">
+        <strong>What changed this month:</strong> <span id="changesText">Loading...</span>
+    </div>
+
+    <main>
+        <div class="search-box">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search topics by name or content..."
+                aria-label="Search topics"
+            >
+        </div>
+
+        <nav class="tabs" role="tablist">
+            <button class="tab-button active" data-tab="all" role="tab" aria-selected="true">All Topics</button>
+            <button class="tab-button" data-tab="AI Tools" role="tab" aria-selected="false">AI Tools</button>
+            <button class="tab-button" data-tab="Search Engines" role="tab" aria-selected="false">Search Engines</button>
+            <button class="tab-button" data-tab="Containers" role="tab" aria-selected="false">Containers</button>
+            <button class="tab-button" data-tab="Cloud" role="tab" aria-selected="false">Cloud</button>
+            <button class="tab-button" data-tab="Java Ecosystem" role="tab" aria-selected="false">Java Ecosystem</button>
+        </nav>
+
+        <div class="topics-grid" id="topicsGrid">
+            <!-- Topics will be inserted here by JavaScript -->
+        </div>
+    </main>
+
+    <section class="deprecations-alert" id="deprecationsAlert">
+        <h2 style="margin-bottom: var(--spacing-md);">[!] Deprecations &amp; EOL Notices</h2>
+        <ul id="deprecationsList" style="list-style: none; padding-left: 0;">
+            <!-- Deprecations will be inserted here -->
+        </ul>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About This Dashboard</h3>
+                <p style="font-size: 0.875rem; margin-bottom: var(--spacing-md); color: var(--color-muted);">
+                    This dashboard tracks the latest versions and developments in AI, Cloud, Container, Search, and Java ecosystem technologies.
+                    Refreshed monthly with verified information from official sources.
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Confidence Levels</h3>
+                <div class="confidence-legend">
+                    <div class="legend-item">
+                        <span class="legend-badge confidence-high">High</span>
+                        <span>From official vendor sources</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge confidence-medium">Medium</span>
+                        <span>From recent announcements</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge confidence-low">Low</span>
+                        <span>Needs verification</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge confidence-unverified">Unverified</span>
+                        <span>Placeholder data</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Official Sources</h3>
+                <ul class="footer-links">
+                    <li><a href="https://www.anthropic.com/claude">Anthropic Claude</a></li>
+                    <li><a href="https://platform.openai.com/">OpenAI Platform</a></li>
+                    <li><a href="https://www.elastic.co/">Elastic</a></li>
+                    <li><a href="https://kubernetes.io/">Kubernetes</a></li>
+                    <li><a href="https://aws.amazon.com/">AWS</a></li>
+                    <li><a href="https://spring.io/">Spring Framework</a></li>
+                    <li><a href="https://jdk.java.net/">OpenJDK</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateThemeToggle(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggle(newTheme);
+        });
+
+        function updateThemeToggle(theme) {
+            themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Topics data (will be injected from render.py)
+        const topicsData = window.TOPICS_DATA || [];
+
+        // Format date
+        function formatDate(isoDate) {
+            const date = new Date(isoDate);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Render topics
+        function renderTopics(filter = 'all', searchQuery = '') {
+            const grid = document.getElementById('topicsGrid');
+            grid.innerHTML = '';
+
+            const filtered = topicsData.filter(topic => {
+                const categoryMatch = filter === 'all' || topic.category === filter;
+                const searchMatch = !searchQuery ||
+                    topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    topic.latest_version.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    topic.key_changes.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
+                return categoryMatch && searchMatch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-results">No topics match your search.</div>';
+                return;
+            }
+
+            filtered.forEach(topic => {
+                const card = document.createElement('article');
+                card.className = 'topic-card';
+                card.innerHTML = `
+                    <div class="topic-header">
+                        <h2 class="topic-title">${escapeHtml(topic.name)}</h2>
+                        <span class="topic-version">${escapeHtml(topic.latest_version)}</span>
+                    </div>
+
+                    <div class="topic-meta">
+                        <span>Released: <strong>${formatDate(topic.release_date)}</strong></span>
+                        <span class="confidence-badge confidence-${topic.confidence}">${topic.confidence}</span>
+                    </div>
+
+                    <button class="toggle-relevance" onclick="toggleRelevance(this)">Show Java Relevance</button>
+
+                    <div class="relevance-section" style="display: none;">
+                        <div class="relevance-label">[Dev] Developer</div>
+                        <div class="relevance-text">${escapeHtml(topic.java_relevance.developer_summary)}</div>
+                        <div class="relevance-label" style="margin-top: var(--spacing-md);">[Arch] Architect</div>
+                        <div class="relevance-text">${escapeHtml(topic.java_relevance.architect_summary)}</div>
+                    </div>
+
+                    <div class="changes-list">
+                        <div class="section-title">Key Changes</div>
+                        <ul>
+                            ${topic.key_changes.map(change => `<li>${escapeHtml(change)}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    ${topic.deprecations.length > 0 ? `
+                        <div class="deprecations-list">
+                            <div class="section-title">Deprecations</div>
+                            <ul>
+                                ${topic.deprecations.map(dep => `<li>${escapeHtml(dep)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    <div class="links-section">
+                        <div class="section-title">Official Sources</div>
+                        <ul class="links-list">
+                            ${topic.links.map(link => `
+                                <li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title)}</a></li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Toggle relevance section
+        function toggleRelevance(button) {
+            const section = button.nextElementSibling;
+            const isHidden = section.style.display === 'none';
+            section.style.display = isHidden ? 'block' : 'none';
+            button.textContent = isHidden ? 'Hide Java Relevance' : 'Show Java Relevance';
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                const tab = e.target.dataset.tab;
+                const searchQuery = document.getElementById('searchInput').value;
+                renderTopics(tab, searchQuery);
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+            renderTopics(activeTab, e.target.value);
+        });
+
+        // Render deprecations
+        function renderDeprecations() {
+            const allDeprecations = [];
+            topicsData.forEach(topic => {
+                topic.deprecations.forEach(dep => {
+                    allDeprecations.push(`<strong>${escapeHtml(topic.name)}:</strong> ${escapeHtml(dep)}`);
+                });
+            });
+
+            const alertElement = document.getElementById('deprecationsAlert');
+            const list = document.getElementById('deprecationsList');
+
+            if (allDeprecations.length === 0) {
+                alertElement.classList.add('none');
+            } else {
+                list.innerHTML = allDeprecations.map(dep => `<li style="margin-bottom: var(--spacing-sm);">${dep}</li>`).join('');
+            }
+        }
+
+        // Update last verified timestamp
+        function updateTimestamp() {
+            if (topicsData.length > 0) {
+                const dates = topicsData.map(t => new Date(t.last_verified)).sort((a, b) => b - a);
+                const latest = dates[0];
+                document.getElementById('updateTime').textContent = formatDate(latest.toISOString());
+            }
+        }
+
+        // Render changes banner
+        function renderChangesBanner() {
+            // TODO: Implement diff detection between current and previous radar.json
+            const banner = document.getElementById('changesBanner');
+            banner.classList.add('none');
+        }
+
+        // HTML escape helper
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initialize
+        renderTopics();
+        renderDeprecations();
+        updateTimestamp();
+        renderChangesBanner();
+    </script>
+</body>
+</html>

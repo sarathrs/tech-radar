@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tech Radar Schema",
+  "type": "object",
+  "required": ["topics"],
+  "properties": {
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "latest_version",
+          "release_date",
+          "key_changes",
+          "deprecations",
+          "java_relevance",
+          "links",
+          "confidence",
+          "last_verified"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "AI Tools",
+              "Search Engines",
+              "Containers",
+              "Cloud",
+              "Java Ecosystem"
+            ]
+          },
+          "latest_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "release_date": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 date format (YYYY-MM-DD)"
+          },
+          "key_changes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "deprecations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "java_relevance": {
+            "type": "object",
+            "required": ["developer_summary", "architect_summary"],
+            "properties": {
+              "developer_summary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "architect_summary": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "links": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["title", "url"],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low", "unverified"]
+          },
+          "last_verified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 datetime format (YYYY-MM-DDTHH:MM:SSZ)"
+          }
+        }
+      }
+    }
+  }
+}
